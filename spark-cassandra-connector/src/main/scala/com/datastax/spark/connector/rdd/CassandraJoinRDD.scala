@@ -240,8 +240,8 @@ class CassandraJoinRDD[L, R] private[connector](
     bsb: BoundStatementBuilder[L],
     leftIterator: Iterator[L]): Iterator[(L, R)] = {
     val columnNamesArray = selectedColumnRefs.map(_.selectedAs).toArray
-    val rateLimiter = new RateLimiter(readConf.throughputJoinQueryPerSec,
-      readConf.throughputJoinQueryPerSec)
+    val rateLimiter = new RateLimiter(
+      readConf.throughputJoinQueryPerSec, readConf.throughputJoinQueryPerSec)
 
     def pairWithRight(left: L): SettableFuture[Iterator[(L, R)]] = {
       val resultFuture = SettableFuture.create[Iterator[(L, R)]]
@@ -260,9 +260,9 @@ class CassandraJoinRDD[L, R] private[connector](
       })
       resultFuture
     }
-    val materializedFutures = leftIterator.map(l => {
+    val materializedFutures = leftIterator.map(left => {
       rateLimiter.maybeSleep(1)
-      pairWithRight(l)
+      pairWithRight(left)
     }).toList
     materializedFutures.iterator.flatMap(_.get)
   }
