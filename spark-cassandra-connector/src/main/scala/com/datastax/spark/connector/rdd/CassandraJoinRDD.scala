@@ -260,11 +260,11 @@ class CassandraJoinRDD[L, R] private[connector](
       })
       resultFuture
     }
-    val materializedFutures = leftIterator.map(left => {
+    val queryFutures = leftIterator.map(left => {
       rateLimiter.maybeSleep(1)
       pairWithRight(left)
     }).toList
-    materializedFutures.iterator.flatMap(_.get)
+    queryFutures.iterator.flatMap(_.get)
   }
 
   override protected def getPartitions: Array[Partition] = {
